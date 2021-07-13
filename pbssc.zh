@@ -1,0 +1,88 @@
+#!/bin/bash
+
+function copy_to_clipboard () {
+  echo "copy_to_clipboard"
+  echo "$1/$filename"
+  clipboard_file="$1/$filename"
+  $(
+   osascript -e "
+   on run
+     set the clipboard to POSIX file \"$clipboard_file\"
+   end
+  ")
+}
+
+function capture_android() {
+  echo "capture_android"
+  adb exec-out screencap -p > "$1/$filename"
+}
+
+function capture_ios() {
+  echo "capture_ios"
+  idevicescreenshot "$1/$filename"
+}
+
+function check_adb () {
+  echo "check_adb"
+  if type adb > /dev/null 2>&1; then
+    adb devices
+  else
+    echo "command not found!"
+  fi
+}
+
+function check_idevicescreenshot () {
+  if type idevicescreenshot > /dev/null 2>&1; then
+    adb devices
+  else
+    echo "command not found!"
+  fi
+}
+
+function create_filename() {
+  echo "create_filename"
+  timestamp=`date +%Y%m%d%H%M%S`
+
+  filename="$1_$timestamp".png
+  echo $filename
+}
+
+function handle_command() {
+  echo "handle_command"
+  local OPTIND OPT $1
+  while getopts :aih OPT
+  do
+    case $OPT in
+       a)
+         check_adb
+         create_filename android
+         capture_android $PBSSC_IMAGE_PATH
+         copy_to_clipboard $PBSSC_IMAGE_PATH
+         ;;
+       i)
+         check_idevicescreenshot
+         create_filename ios
+         capture_ios $PBSSC_IMAGE_PATH
+         copy_to_clipboard $PBSSC_IMAGE_PATH
+         ;;
+       h) echo "How to use";;
+       *) echo "'-$OPTARG' is not support.";;
+    esac
+  done
+}
+
+function check_image_path() {
+  echo "check_image_path"
+  if [ -z $PBSSC_IMAGE_PATH ]; then
+    echo 'Please set the "PBSSC_IMAGE_PATH" environment variable and try again.' >&2
+    exit 1
+  fi
+}
+
+check_image_path
+handle_command $1
+
+
+
+
+
