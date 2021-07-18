@@ -1,7 +1,7 @@
 # pbssc
 Provide screenshot and copy to clipboard.
 
-You can get the device image from the CLI and copy it to the clipboard.
+You can get the device image from the CLI and copy it to the clipboard
 
 ## Requirement
 - macOS only
@@ -18,11 +18,11 @@ export PBSSC_IMAGE_PATH=/YOUR/PATH
 ## Android device
 
 ```
-% ./pbssc.zh -a
+% ./pbssc -a
 ```
 
 ## iOS device
 
 ```
-% ./pbssc.zh -i
+% ./pbssc -i
 ```
