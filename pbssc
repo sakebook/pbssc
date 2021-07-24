@@ -32,29 +32,44 @@ copy_to_clipboard () {
   echo "Set image to clipboard from $PBSSC_IMAGE_PATH/$filename"
 }
 
+help_text() {
+  cat << EOS
+Usage: pbssc [OPTIONS]
+
+options:
+  -a   set capture and clipboard from connected android device
+  -i   set capture and clipboard from connected ios device
+
+Homepage:
+  https://github.com/sakebook/pbssc
+EOS
+}
+
 # check option
 while getopts hai OPT
 do
   case $OPT in
     a)
-      if ! command -v adb &> /dev/null
-      then
-        echo "adb command not found!"
+      if ! command -v adb &> /dev/null; then
+        echo "adb command not found!" >&2
         exit 1
       fi
       capture_android
       copy_to_clipboard
       ;;
     i)
-      if ! command -v idevicescreenshot &> /dev/null
-      then
-        echo "idevicescreenshot command not found!"
+      if ! command -v idevicescreenshot &> /dev/null; then
+        echo "idevicescreenshot command not found!" >&2
         exit 1
       fi
       capture_ios
       copy_to_clipboard
       ;;
-    h) echo "How to use";;
+    h) help_text;;
     *) echo "'-$OPTARG' is not support.";;
   esac
 done
+
+if (( $OPTIND == 1 )); then
+   echo "Please set the options [-i] or [-a]."
+fi
