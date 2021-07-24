@@ -12,11 +12,21 @@ fi
 
 # capture from android device
 capture_android() {
+  device_id=$(adb devices | sed '1d' | awk '{ print $1 }')
+  if [ -z "$device_id" ]; then
+    echo "Connected device not found!" >&2
+    exit 1
+  fi
   adb exec-out screencap -p > "$PBSSC_IMAGE_PATH/$filename" > /dev/null
 }
 
 # capture from ios device
 capture_ios() {
+  device_id=$(idevice_id | awk '{ print $1 }')
+  if [ -z "$device_id" ]; then
+    echo "Connected device not found!" >&2
+    exit 1
+  fi
   idevicescreenshot "$PBSSC_IMAGE_PATH/$filename" > /dev/null
 }
 
