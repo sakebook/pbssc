@@ -1,89 +1,60 @@
 #!/usr/bin/env bash
+set -e
 
-function copy_to_clipboard () {
-  echo "copy_to_clipboard"
-  echo "$1/$filename"
-  clipboard_file="$1/$filename"
+timestamp=$(date +%Y%m%d%H%M%S)
+filename="ss-$timestamp".png
+
+# check image path
+if [ -z $PBSSC_IMAGE_PATH ]; then
+  echo 'Please set the "PBSSC_IMAGE_PATH" environment variable and try again.' >&2
+  exit 1
+fi
+
+# capture from android device
+capture_android() {
+  adb exec-out screencap -p > "$PBSSC_IMAGE_PATH/$filename" > /dev/null
+}
+
+# capture from ios device
+capture_ios() {
+  idevicescreenshot "$PBSSC_IMAGE_PATH/$filename" > /dev/null
+}
+
+# image set to clipboard
+copy_to_clipboard () {
+  clipboard_file="$PBSSC_IMAGE_PATH/$filename"
   $(
    osascript -e "
    on run
      set the clipboard to POSIX file \"$clipboard_file\"
    end
   ")
+  echo "Set image to clipboard from $PBSSC_IMAGE_PATH/$filename"
 }
 
-function capture_android() {
-  echo "capture_android"
-  adb exec-out screencap -p > "$1/$filename"
-}
-
-function capture_ios() {
-  echo "capture_ios"
-  idevicescreenshot "$1/$filename"
-}
-
-function check_adb () {
-  echo "check_adb"
-  if type adb > /dev/null 2>&1; then
-    adb devices
-  else
-    echo "command not found!"
-  fi
-}
-
-function check_idevicescreenshot () {
-  if type idevicescreenshot > /dev/null 2>&1; then
-    adb devices
-  else
-    echo "command not found!"
-  fi
-}
-
-function create_filename() {
-  echo "create_filename"
-  timestamp=`date +%Y%m%d%H%M%S`
-
-  filename="$1_$timestamp".png
-  echo $filename
-}
-
-function handle_command() {
-  echo "handle_command"
-  local OPTIND OPT $1
-  while getopts :aih OPT
-  do
-    case $OPT in
-       a)
-         check_adb
-         create_filename android
-         capture_android $PBSSC_IMAGE_PATH
-         copy_to_clipboard $PBSSC_IMAGE_PATH
-         ;;
-       i)
-         check_idevicescreenshot
-         create_filename ios
-         capture_ios $PBSSC_IMAGE_PATH
-         copy_to_clipboard $PBSSC_IMAGE_PATH
-         ;;
-       h) echo "How to use";;
-       *) echo "'-$OPTARG' is not support.";;
-    esac
-  done
-}
-
-function check_image_path() {
-  echo "check_image_path"
-  if [ -z $PBSSC_IMAGE_PATH ]; then
-    echo 'Please set the "PBSSC_IMAGE_PATH" environment variable and try again.' >&2
-    exit 1
-  fi
-}
-
-check_image_path
-handle_command $1
-
-
-
-
-
-
+# check option
+while getopts hai OPT
+do
+  case $OPT in
+    a)
+      if ! command -v adb &> /dev/null
+      then
+        echo "adb command not found!"
+        exit 1
+      fi
+      capture_android
+      copy_to_clipboard
+      ;;
+    i)
+      if ! command -v idevicescreenshot &> /dev/null
+      then
+        echo "idevicescreenshot command not found!"
+        exit 1
+      fi
+      capture_ios
+      copy_to_clipboard
+      ;;
+    h) echo "How to use";;
+    *) echo "'-$OPTARG' is not support.";;
+  esac
+done
