@@ -4,6 +4,17 @@ set -e
 timestamp=$(date +%Y%m%d%H%M%S)
 filename="ss-$timestamp".png
 
+# check args count
+if [ $# -gt 2 ] ; then
+  echo 'Too many args! Please run [-h] option.' >&2
+  exit 1
+fi
+
+# check filename
+if [ $# = 2 ]; then
+  filename=$2
+fi
+
 # check image path
 if [ -z $PBSSC_IMAGE_PATH ]; then
   echo 'Please set the "PBSSC_IMAGE_PATH" environment variable and try again.' >&2
@@ -14,20 +25,20 @@ fi
 capture_android() {
   device_id=$(adb devices | sed '1d' | awk '{ print $1 }')
   if [ -z "$device_id" ]; then
-    echo "Connected device not found!" >&2
+    echo "Connected android device not found!" >&2
     exit 1
   fi
-  adb exec-out screencap -p > "$PBSSC_IMAGE_PATH/$filename" > /dev/null
+  adb exec-out screencap -p > "$PBSSC_IMAGE_PATH/$filename"
 }
 
 # capture from ios device
 capture_ios() {
   device_id=$(idevice_id | awk '{ print $1 }')
   if [ -z "$device_id" ]; then
-    echo "Connected device not found!" >&2
+    echo "Connected ios device not found!" >&2
     exit 1
   fi
-  idevicescreenshot "$PBSSC_IMAGE_PATH/$filename" > /dev/null
+  idevicescreenshot "$PBSSC_IMAGE_PATH/$filename"
 }
 
 # image set to clipboard
@@ -44,11 +55,14 @@ copy_to_clipboard () {
 
 help_text() {
   cat << EOS
-Usage: pbssc [OPTIONS]
+Usage: pbssc [OPTIONS] [FILE]
 
 options:
   -a   set capture and clipboard from connected android device
   -i   set capture and clipboard from connected ios device
+
+file:
+  Supported PNG format.
 
 Homepage:
   https://github.com/sakebook/pbssc
