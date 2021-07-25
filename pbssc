@@ -101,6 +101,7 @@ if [[ $# -gt 2 ]] ; then
   exit 1
 fi
 
+# check custom filename
 if [[ $# = 2 ]]; then
   custom_filename=$2
 fi
@@ -108,7 +109,7 @@ fi
 if [[ -n $help_flag ]]; then
   help_text
 elif [[ -n $save_flag ]]; then
-  unset custom_filename
+  unset custom_filename # Not supported custom filename on -s option
   check_exist_command_idevicescreenshot
   capture_ios
   check_exist_command_adb
