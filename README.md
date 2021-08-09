@@ -3,6 +3,8 @@ Provide screenshot and copy to clipboard.
 
 You can get the device image from the CLI and copy it to the clipboard
 
+https://user-images.githubusercontent.com/729101/128733918-10f68291-c746-4413-84d7-2aab61345fa4.mp4
+
 ## Requirement
 - macOS only
 - [adb](https://developer.android.com/studio/command-line/adb)
