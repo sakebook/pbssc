@@ -52,10 +52,10 @@ capture_ios() {
 
 # image set to clipboard
 copy_to_clipboard () {
-   osascript -e "
-   on run
-     set the clipboard to POSIX file \"$filepath\"
-   end
+  osascript -e "
+  on run
+    set the clipboard to (read POSIX file \"$filepath\" as «class PNGf»)
+  end
   "
   echo "Set image to clipboard from $filepath"
 }
